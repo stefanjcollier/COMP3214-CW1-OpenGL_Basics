@@ -31,8 +31,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-const GLuint vertIndxs = 5; //The number of places required in the array for a single vertex
-const GLuint nodes = 11;
+const GLuint nodes = 21;
+
+void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals);
 
 //TODO eventually delete me
 void printArr(GLfloat* arr, GLuint n) {
@@ -82,9 +83,18 @@ int main()
 	/**************************************************************
 	********************[  Graphics Objs Setup ]*******************
 	***************************************************************/
-	GLfloat vertices[ 2 * nodes * nodes * vertIndxs];
+	//It's 4 because 2+2 * (etc) for both (longitude AND latitude coords) + (For each node there are two points)
 
-	genericSphere.populateArrayWithSphere(vertices, 1.0f, 0.0f, 0.0f, 0.0f);
+	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs)];
+
+	std::cout << "About to sphere " << std::endl;
+	genericSphere.populateArrayWithSphere(vertices, 2.0f, 0.0f, 0.0f, 0.0f);
+	std::cout << "Done sphere " << std::endl;
+
+	std::cout << "About to Norm that " << std::endl;
+	populateWithNormal(vertices, 2*nodes*nodes, nodes*nodes);
+	std::cout << "Done Norm that " << std::endl;
+
 
 	GLuint VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -98,8 +108,13 @@ int main()
 	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
+
 	// Texture Coord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
+	// Texture Coord attribute
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0); // Unbind VAO
@@ -129,13 +144,13 @@ int main()
 		// Camera/View transformation
 		glm::mat4 view;
 		GLfloat radius = 10.0f;
-		GLfloat camX = sin(glfwGetTime()) * radius;
-		GLfloat camZ = cos(glfwGetTime()) * radius;
+		GLfloat camX = sin((GLfloat)glfwGetTime()) * radius;
+		GLfloat camZ = cos((GLfloat)glfwGetTime()) * radius;
 		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glm::mat4 model;
 		glm::mat4 projection;
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
 		projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 
 		// Get their uniform location
@@ -155,6 +170,8 @@ int main()
 		{
 			glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
 		}
+		//Draw the normals
+		glDrawArrays(GL_LINES, nodes*nodes*2, nodes*nodes*2);
 		glBindVertexArray(0);
 
 
@@ -186,4 +203,38 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals) {
+	GLuint offset = lineNo * vertIndxs;
 
+	//Multiplier
+	GLfloat m = 0.333f;
+	GLfloat dx, dy, dz, x, y, z,  nx, ny, nz;
+	GLuint j = 0;
+	for (GLuint i = 0; i < noOfNormals*vertIndxs; i+= vertIndxs) {
+		x = arr[i + 0];
+		y = arr[i + 1];
+		z = arr[i + 2];
+
+		dx = arr[i + 3];
+		dy = arr[i + 4];
+		dz = arr[i + 5];
+
+		nx = m*dx + x;
+		ny = m*dy + y;
+		nz = m*dz + z;
+
+		//Set the positions
+		arr[offset + j + 0] = x;
+		arr[offset + j + 1] = y;
+		arr[offset + j + 2] = z;
+		j+= vertIndxs;
+
+		arr[offset + j + 0] = nx;
+		arr[offset + j + 1] = ny;
+		arr[offset + j + 2] = nz;
+		j += vertIndxs;
+
+		//We simply ignore the other values as we are only going to draw lines
+	}
+
+}

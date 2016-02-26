@@ -6,6 +6,9 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+//The number of places required in the array for a single vertex
+const GLuint vertIndxs = 9; 
+
 
 class Sphere
 {
@@ -17,9 +20,8 @@ public:
 
 	//TODO: Allow for a initial x,y,z0's and radius
 	void populateArrayWithSphere(GLfloat* vertices, GLfloat radius, GLfloat x0, GLfloat y0, GLfloat z0) {
-
 		//Populate verticies - Lattitude (Verticals)
-		GLfloat delta_deg = 360.0f / (nodesPerDemiRing);
+		GLfloat delta_deg = 360.0f / (nodesPerDemiRing-1);
 		for (GLuint line = 0; line < noOfLines; line++) {
 			GLfloat phi = glm::radians(line*delta_deg);
 			createLattitudeContours(vertices, line, radius, x0, y0, z0, phi);
@@ -29,12 +31,10 @@ public:
 			GLfloat theta = glm::radians((longLine - noOfLines)*delta_deg);
 			createLongitudeContours(vertices, longLine, radius, x0, y0, z0, theta);
 		}
-
 	}
 
 private:
 	const GLfloat pi = 3.14159265359f;
-	const GLuint vertIndxs = 5; //The number of places required in the array for a single vertex
 
 	GLuint nodesPerDemiRing;
 	GLuint noOfLines;
@@ -62,13 +62,19 @@ private:
 			y = gimmeY(y0, r, theta, phi);
 			z = gimmeZ(z0, r, theta);
 
-			arr[offset + vertIndxs*i] = x;
+			arr[offset + vertIndxs*i + 0] = x;
 			arr[offset + vertIndxs*i + 1] = y;
 			arr[offset + vertIndxs*i + 2] = z;
 
+			//Include Normal Direction
+			arr[offset + vertIndxs*i + 3] = x - x0;
+			arr[offset + vertIndxs*i + 4] = y - y0;
+			arr[offset + vertIndxs*i + 5] = z - z0;
+
 			//Include null texture coords
-			arr[offset + vertIndxs*i + 3] = 0.0f;
-			arr[offset + vertIndxs*i + 4] = 0.0f;
+			arr[offset + vertIndxs*i + 6] = 0.0f;
+			arr[offset + vertIndxs*i + 7] = 0.0f;
+			arr[offset + vertIndxs*i + 8] = 0.0f;
 		}
 	}
 
@@ -86,13 +92,19 @@ private:
 			y = gimmeY(y0, r, theta, phi);
 			z = gimmeZ(z0, r, theta);
 
-			arr[offset + vertIndxs*i] = x;
+			arr[offset + vertIndxs*i + 0] = x;
 			arr[offset + vertIndxs*i + 1] = y;
 			arr[offset + vertIndxs*i + 2] = z;
 
+			//Include Normal Direction
+			arr[offset + vertIndxs*i + 3] = x - x0;
+			arr[offset + vertIndxs*i + 4] = y - y0;
+			arr[offset + vertIndxs*i + 5] = z - z0;
+
 			//Include null texture coords
-			arr[offset + vertIndxs*i + 3] = 0.0f;
-			arr[offset + vertIndxs*i + 4] = 0.0f;
+			arr[offset + vertIndxs*i + 6] = 0.0f;
+			arr[offset + vertIndxs*i + 7] = 0.0f;
+			arr[offset + vertIndxs*i + 8] = 0.0f;
 		}
 	}
 
