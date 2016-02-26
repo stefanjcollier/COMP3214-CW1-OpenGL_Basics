@@ -78,6 +78,7 @@ private:
 		}
 	}
 
+
 	//Completes a lattitude circle 
 	void createLattitudeContours(GLfloat* arr, GLuint lineNo, GLfloat r, GLfloat x0, GLfloat y0, GLfloat z0, GLfloat theta) {
 		GLuint offset = lineNo * vertIndxs*nodesPerDemiRing;

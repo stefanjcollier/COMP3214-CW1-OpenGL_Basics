@@ -21,6 +21,7 @@
 // Other includes
 #include "Shader.h"
 #include "Sphere.h"
+#include "Cone.h"
 
 /**************************************************************
 ********************[  Outside Def's   ]***********************
@@ -32,6 +33,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 const GLuint nodes = 21;
+
+//Indication of what we intend to see
+GLuint gamemode = 'A';
 
 void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals);
 
@@ -79,21 +83,19 @@ int main()
 	// Build and compile our shader program
 	Shader ourShader("shader.vs", "shader.frag");
 	Sphere genericSphere(nodes);
+	Cone cone1(nodes);
 
 	/**************************************************************
 	********************[  Graphics Objs Setup ]*******************
 	***************************************************************/
 	//It's 4 because 2+2 * (etc) for both (longitude AND latitude coords) + (For each node there are two points)
+	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs) + (3 * nodes * vertIndxs)];
 
-	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs)];
-
-	std::cout << "About to sphere " << std::endl;
 	genericSphere.populateArrayWithSphere(vertices, 2.0f, 0.0f, 0.0f, 0.0f);
-	std::cout << "Done sphere " << std::endl;
 
-	std::cout << "About to Norm that " << std::endl;
 	populateWithNormal(vertices, 2*nodes*nodes, nodes*nodes);
-	std::cout << "Done Norm that " << std::endl;
+
+	cone1.populateArrayWithCone(vertices, 4 * nodes*nodes, 0.5f, 1.5f);
 
 
 	GLuint VBO, VAO;
@@ -164,14 +166,28 @@ int main()
 		// Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		// Draw Da COUNTOURS
-		glBindVertexArray(VAO);
-		for (GLuint line = 0; line < 2*nodes; line++)
+
+		/**************************************************************
+		********************[  Drawing Time! ]*******************
+		***************************************************************/
+		if (gamemode >= 'A')
 		{
-			glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
+			// Draw DA COUNTOURS
+			glBindVertexArray(VAO);
+			for (GLuint line = 0; line < 2 * nodes; line++)
+			{
+				glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
+			}
+
+			if (gamemode == 'B') {
+				//Draw the normals
+				glDrawArrays(GL_LINES, nodes*nodes * 2, nodes*nodes * 2);
+			}
+
+			if (gamemode == 'C') {
+				cone1.drawCone(nodes*nodes * 4);
+			}
 		}
-		//Draw the normals
-		glDrawArrays(GL_LINES, nodes*nodes*2, nodes*nodes*2);
 		glBindVertexArray(0);
 
 
@@ -193,11 +209,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if (64 < key && key < 70)
 	{
-		std::cout << "This key [" << key << "] will do something " << std::endl;
-	}
-	else
-	{
-		std::cout << "This key [" << key << "] does nada, sozza ma bro-a-reeno " << std::endl;
+		gamemode = key;
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
