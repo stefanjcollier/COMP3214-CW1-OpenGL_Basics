@@ -1,6 +1,6 @@
 ﻿  Source.cpp
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(157): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(158): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(132): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(133): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
 glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\Stefa\documents\visual studio 2015\Projects\Coursework1\Debug\vc120.pdb'; linking object as if no debug info

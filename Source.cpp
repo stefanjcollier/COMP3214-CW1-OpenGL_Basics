@@ -20,6 +20,7 @@
 
 // Other includes
 #include "Shader.h"
+#include "Sphere.h"
 
 /**************************************************************
 ********************[  Outside Def's   ]***********************
@@ -30,25 +31,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-//Circle constants
-const GLfloat pi = 3.14159265359f;
-
 const GLuint vertIndxs = 5; //The number of places required in the array for a single vertex
-const GLuint nodesPerDemiRing = 15;
-const GLuint noOfLines = 2 * nodesPerDemiRing; //TODO later remove this if it = nodesPerRing stil
-
-GLfloat gimmeX(GLfloat x0, GLfloat r, GLfloat theta, GLfloat phi);
-GLfloat gimmeY(GLfloat y0, GLfloat r, GLfloat theta, GLfloat phi);
-GLfloat gimmeZ(GLfloat z0, GLfloat r, GLfloat theta);
-
-//Fills given array 'arr' with the points for a sphere, where the points are organised by longitude rings, ring by ring.
-void createLongitudeContours(GLfloat* arr, GLuint lineNo, GLfloat r, GLfloat x0, GLfloat y0, GLfloat z0, GLfloat phi);
-
-//Fills given array 'arr' with the points for a sphere, where the points are organised by lattitude rings, ring by ring.
-void createLattitudeContours(GLfloat* arr, GLuint lineNo, GLfloat r, GLfloat x0, GLfloat y0, GLfloat z0, GLfloat theta);
-
-//TODO: Implement me
-void seedCircle(GLfloat* arr, GLfloat radius);
+const GLuint nodes = 11;
 
 //TODO eventually delete me
 void printArr(GLfloat* arr, GLuint n) {
@@ -93,24 +77,14 @@ int main()
 
 	// Build and compile our shader program
 	Shader ourShader("shader.vs", "shader.frag");
-
+	Sphere genericSphere(nodes);
 
 	/**************************************************************
 	********************[  Graphics Objs Setup ]*******************
 	***************************************************************/
-	GLfloat vertices[ 2 * noOfLines * nodesPerDemiRing * vertIndxs];
+	GLfloat vertices[ 2 * nodes * nodes * vertIndxs];
 
-	//Populate verticies - Lattitude (Verticals)
-	GLfloat delta_deg = 180.0f / (nodesPerDemiRing);
-	for (GLuint line = 0; line < noOfLines; line++) {
-		GLfloat phi = glm::radians(line*delta_deg); 
-		createLattitudeContours(vertices, line, 1.0f, 0.0f, 0.0f, 0.0f, phi);
-	}
-	//Populate verticies - Longitude (Horizontals)
-	for (GLuint longLine = noOfLines; longLine < noOfLines * 2; longLine++) {
-		GLfloat theta = glm::radians((longLine-noOfLines)*delta_deg);
-		createLongitudeContours(vertices, longLine, 1.0f, 0.0f, 0.0f, 0.0f, theta);
-	}
+	genericSphere.populateArrayWithSphere(vertices, 1.0f, 0.0f, 0.0f, 0.0f);
 
 	GLuint VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -177,9 +151,9 @@ int main()
 
 		// Draw Da COUNTOURS
 		glBindVertexArray(VAO);
-		for (GLuint line = 0; line < 2*noOfLines; line++)
+		for (GLuint line = 0; line < 2*nodes; line++)
 		{
-			glDrawArrays(GL_LINE_STRIP, nodesPerDemiRing*line, nodesPerDemiRing);
+			glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
 		}
 		glBindVertexArray(0);
 
@@ -210,69 +184,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-
-GLfloat gimmeX(GLfloat x0, GLfloat r, GLfloat theta, GLfloat phi) {
-	return x0 + (r * glm::cos(theta) * glm::cos(phi));
-}
-GLfloat gimmeY(GLfloat y0, GLfloat r, GLfloat theta, GLfloat phi) {
-	return y0 + (r * glm::cos(theta) * glm::sin(phi));
-}
-GLfloat gimmeZ(GLfloat z0, GLfloat r, GLfloat theta){
-	return z0 + (r * glm::sin(theta));
-}
-
-//Completes a longitude circle 
-void createLongitudeContours(GLfloat* arr, GLuint lineNo, GLfloat r, GLfloat x0, GLfloat y0, GLfloat z0, GLfloat phi) {
-	GLuint offset = lineNo * vertIndxs*nodesPerDemiRing;
-	//How much we will increment 
-	GLfloat inc = 2 * pi / (nodesPerDemiRing - 1); // "pi/(n-1)" allows for 0 <= theta <= 2*pi
-	GLfloat theta, x, y, z;
-	for (GLuint i = 0; i < nodesPerDemiRing; i++)
-	{
-		theta = i*inc;
-		x = gimmeX(x0, r, theta, phi);
-		y = gimmeY(y0, r, theta, phi);
-		z = gimmeZ(z0, r, theta);
-
-		arr[offset + vertIndxs*i]   = x;
-		arr[offset + vertIndxs*i+1] = y;
-		arr[offset + vertIndxs*i+2] = z;
-
-		//Include null texture coords
-		arr[offset + vertIndxs*i + 3] = 0.0f;
-		arr[offset + vertIndxs*i + 4] = 0.0f;
-	}
-}
-
-//Completes a lattitude circle 
-void createLattitudeContours(GLfloat* arr, GLuint lineNo, GLfloat r, GLfloat x0, GLfloat y0, GLfloat z0, GLfloat theta) {
-	GLuint offset = lineNo * vertIndxs*nodesPerDemiRing;
-
-	//How much we will increment 
-	GLfloat inc = 2 * pi / (nodesPerDemiRing - 1); // "pi/(n-1)" allows for 0 <= phi <= 2*pi
-	GLfloat phi, x, y, z;
-	for (GLuint i = 0; i < nodesPerDemiRing; i++)
-	{
-		phi = i*inc - pi/2;
-		x = gimmeX(x0, r, theta, phi);
-		y = gimmeY(y0, r, theta, phi);
-		z = gimmeZ(z0, r, theta);
-
-		arr[offset+vertIndxs*i] = x;
-		arr[offset + vertIndxs*i + 1] = y;
-		arr[offset + vertIndxs*i + 2] = z;
-
-		//Include null texture coords
-		arr[offset + vertIndxs*i + 3] = 0.0f;
-		arr[offset + vertIndxs*i + 4] = 0.0f;
-	}
-}
-
-void seedCircle(GLfloat* arr, GLfloat radius) {
-	std::cout << "INCOMPLETE::seedCircle(arr,radius) unimplented!" << std::endl;
-
 }
 
 
