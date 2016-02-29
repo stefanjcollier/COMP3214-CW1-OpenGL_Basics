@@ -176,7 +176,7 @@ int main()
 			// Draw DA COUNTOURS
 			for (GLuint line = 0; line < 2 * nodes; line++)
 			{
-				glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
+				glDrawArrays(GL_TRIANGLE_FAN, nodes*line, nodes);
 			}
 
 			if (gamemode == 'B') {
