@@ -22,6 +22,7 @@
 #include "Shader.h"
 #include "Sphere.h"
 #include "Cone.h"
+//#include "ConeB.h"
 
 /**************************************************************
 ********************[  Outside Def's   ]***********************
@@ -88,8 +89,9 @@ int main()
 	/**************************************************************
 	********************[  Graphics Objs Setup ]*******************
 	***************************************************************/
-	//It's 4 because 2+2 * (etc) for both (longitude AND latitude coords) + (For each node there are two points)
-	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs) + (vertIndxs * nodes * 2 * 3) ];
+	//It's 4 because 2+2 * (etc) for both (longitude AND latitude coords) +
+	//  Cone: (nodes: half nodes in circle => 2 demi circles = 1 circle)
+	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs) + (2*(vertIndxs * nodes * 2 * 3)) ];
 
 	genericSphere.populateArrayWithSphere(vertices, 2.0f, 0.0f, 0.0f, 0.0f);
 
@@ -120,8 +122,6 @@ int main()
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0); // Unbind VAO
-
-
 	/**************************************************************
 	********************[  GAME LOOP ]*******************
 	***************************************************************/	
@@ -170,10 +170,10 @@ int main()
 		/**************************************************************
 		********************[  Drawing Time! ]*******************
 		***************************************************************/
-		if (gamemode >= 'A')
+		glBindVertexArray(VAO);
+		if (gamemode == 'A' || gamemode == 'B' )
 		{
 			// Draw DA COUNTOURS
-			glBindVertexArray(VAO);
 			for (GLuint line = 0; line < 2 * nodes; line++)
 			{
 				glDrawArrays(GL_LINE_STRIP, nodes*line, nodes);
@@ -184,10 +184,12 @@ int main()
 				glDrawArrays(GL_LINES, nodes*nodes * 2, nodes*nodes * 2);
 			}
 
-			if (gamemode == 'C') {
-				cone1.drawCone(nodes*nodes * 4);
-			}
 		}
+		if (gamemode == 'C') {
+			cone1.drawCone(nodes*nodes * 4);
+		}
+
+
 		glBindVertexArray(0);
 
 

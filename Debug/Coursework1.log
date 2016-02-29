@@ -1,19 +1,6 @@
 ﻿  Source.cpp
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\sphere.h(10): error C2370: 'vertIndxs': redefinition; different storage class
-  c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\sphere.h(10): note: see declaration of 'vertIndxs'
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\sphere.h(14): error C2011: 'Sphere': 'class' type redefinition
-  c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\sphere.h(14): note: see declaration of 'Sphere'
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(60): error C2143: syntax error: missing ';' before '}'
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(60): error C2059: syntax error: '}'
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(22): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(23): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(24): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(27): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(28): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(29): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(32): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(33): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\cone.h(34): warning C4552: '+': operator has no effect; expected operator with side-effect
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(85): error C2079: 'genericSphere' uses undefined class 'Sphere'
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(94): error C2228: left of '.populateArrayWithSphere' must have class/struct/union
-  c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(94): note: type is 'int'
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\vc120.pdb'; linking object as if no debug info
+  Coursework1.vcxproj -> C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\Coursework1.exe
+  Coursework1.vcxproj -> C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\Coursework1.pdb (Partial PDB)

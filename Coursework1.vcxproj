@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cone.h" />
+    <ClInclude Include="ConeB.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sphere.h" />
   </ItemGroup>
