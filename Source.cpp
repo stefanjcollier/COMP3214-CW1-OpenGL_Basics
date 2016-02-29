@@ -89,7 +89,7 @@ int main()
 	********************[  Graphics Objs Setup ]*******************
 	***************************************************************/
 	//It's 4 because 2+2 * (etc) for both (longitude AND latitude coords) + (For each node there are two points)
-	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs) + (3 * nodes * vertIndxs)];
+	GLfloat vertices[ 4 * (nodes * nodes * vertIndxs) + (vertIndxs * nodes * 2 * 3) ];
 
 	genericSphere.populateArrayWithSphere(vertices, 2.0f, 0.0f, 0.0f, 0.0f);
 
