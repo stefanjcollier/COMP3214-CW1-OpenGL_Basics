@@ -6,8 +6,10 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+
+
 //The number of places required in the array for a single vertex
-const GLuint vertIndxs = 9; 
+const GLuint vertIndxs = 9;
 
 
 class Sphere
@@ -17,6 +19,8 @@ public:
 		nodesPerDemiRing = nodes;
 		noOfLines = nodes;
 	}
+
+
 
 	//TODO: Allow for a initial x,y,z0's and radius
 	void populateArrayWithSphere(GLfloat* vertices, GLfloat radius, GLfloat x0, GLfloat y0, GLfloat z0) {
