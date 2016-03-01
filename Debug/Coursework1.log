@@ -1,14 +1,2 @@
-﻿  Source.cpp
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(154): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(270): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(271): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(275): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(276): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(278): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(279): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\stefa\documents\visual studio 2015\projects\coursework1\coursework1\source.cpp(286): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\vc120.pdb'; linking object as if no debug info
-  Coursework1.vcxproj -> C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\Coursework1.exe
+﻿  Coursework1.vcxproj -> C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\Coursework1.exe
   Coursework1.vcxproj -> C:\Users\Stefa\Documents\Visual Studio 2015\Projects\Coursework1\Debug\Coursework1.pdb (Partial PDB)

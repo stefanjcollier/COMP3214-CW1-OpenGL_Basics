@@ -44,6 +44,9 @@ GLfloat lastX = WIDTH / 2.0;
 GLfloat lastY = HEIGHT / 2.0;
 bool keys[1024];
 
+// Light attributes
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
@@ -53,7 +56,7 @@ GLfloat lastFrame = 0.0f;  	// Time of last frame
 //Indication of what we intend to see
 GLuint gamemode = 'A';
 //Control of precision of circle curve
-const GLuint nodes = 41;
+const GLuint nodes = 51;
 
 
 void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals);
@@ -105,7 +108,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Build and compile our shader program
-	Shader ourShader("shader.vs", "shader.frag");
+	Shader fancyLightShader("shader.vs", "lightShader.frag");
+
 	Sphere genericSphere(nodes);
 	Cone cone1(nodes);
 
@@ -165,20 +169,36 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		/**************************************************************
+		********************[  Lighting Magic! ]**************************
+		***************************************************************/
 		// Activate shader
-		ourShader.Use();
+		fancyLightShader.Use();
+		GLint objectColorLoc = glGetUniformLocation(fancyLightShader.Program, "objectColor");
+		GLint lightColorLoc = glGetUniformLocation(fancyLightShader.Program, "lightColor");
+		GLint lightPosLoc = glGetUniformLocation(fancyLightShader.Program, "lightPos");
+		GLint viewPosLoc = glGetUniformLocation(fancyLightShader.Program, "viewPos");
+		if ('A' <= gamemode && gamemode <= 'B') {
+			glUniform3f(objectColorLoc, 0.0f, 0.0f, 0.0f);
+		}
+		else {
+			glUniform3f(objectColorLoc, 0.5f, 0.0f, 0.5f);
+		}
+		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		/**************************************************************
-		********************[  ACTION TIME! ]**************************
+		********************[  Camera Magic! ]**************************
 		***************************************************************/
 		// Camera/View transformation
 		glm::mat4 view;
 		view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 		// Get the uniform locations
-		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
-		GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
-		GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
+		GLint modelLoc = glGetUniformLocation(fancyLightShader.Program, "model");
+		GLint viewLoc = glGetUniformLocation(fancyLightShader.Program, "view");
+		GLint projLoc = glGetUniformLocation(fancyLightShader.Program, "projection");
 
 		// Pass the matrices to the shader
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -186,33 +206,32 @@ int main()
 		glm::mat4 model;
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-
-
 		/**************************************************************
 		********************[  Drawing Time! ]*******************
 		***************************************************************/
 		glBindVertexArray(VAO);
-		if (gamemode == 'A' || gamemode == 'B' )
+
+		GLuint drawType = GL_LINE_LOOP;
+		if (gamemode == 'C')
+			drawType = GL_TRIANGLE_FAN;
+
+		if ('A' <= gamemode && gamemode <= 'C' )
 		{
 			// Draw DA COUNTOURS
 			for (GLuint line = 0; line < 2 * nodes; line++)
 			{
-				glDrawArrays(GL_TRIANGLE_FAN, nodes*line, nodes);
+				glDrawArrays(drawType, nodes*line, nodes);
 			}
-
 			if (gamemode == 'B') {
 				//Draw the normals
 				glDrawArrays(GL_LINES, nodes*nodes * 2, nodes*nodes * 2);
 			}
 
 		}
-		if (gamemode == 'C') {
+		if (gamemode == 'D') {
 			cone1.drawCone(nodes*nodes * 4);
 		}
-
-
 		glBindVertexArray(0);
-
 
 		// Swap the screen buffers
 		glfwSwapBuffers(window);

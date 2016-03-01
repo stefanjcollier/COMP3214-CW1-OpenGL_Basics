@@ -119,7 +119,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.frag" />
+    <None Include="lightShader.frag" />
     <None Include="shader.vs" />
   </ItemGroup>
   <ItemGroup>
