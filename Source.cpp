@@ -20,6 +20,8 @@
 
 // Other includes
 #include "Shader.h"
+#include "Camera.h"
+
 #include "Sphere.h"
 #include "Cone.h"
 //#include "ConeB.h"
@@ -29,14 +31,30 @@
 ***************************************************************/
 //This method will change the scene between A-E
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void do_movement();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-const GLuint nodes = 21;
+// Camera
+Camera  camera(glm::vec3(0.0f, 0.0f, 3.0f));
+GLfloat lastX = WIDTH / 2.0;
+GLfloat lastY = HEIGHT / 2.0;
+bool keys[1024];
+
+// Deltatime
+GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
+GLfloat lastFrame = 0.0f;  	// Time of last frame
+
+
 
 //Indication of what we intend to see
 GLuint gamemode = 'A';
+//Control of precision of circle curve
+const GLuint nodes = 41;
+
 
 void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals);
 
@@ -67,8 +85,13 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "This is Stefan's Amazing Coursework", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	// This instructs it to obey our keyboard!
+	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// GLFW Options
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Set this to  true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
@@ -113,9 +136,9 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	// Texture Coord attribute
+	//// Normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(1);
 
 	// Texture Coord attribute
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
@@ -127,9 +150,15 @@ int main()
 	***************************************************************/	
 	while (!glfwWindowShouldClose(window))
 	{
+		// Calculate deltatime of current frame
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// Check if any events have been activiated (key pressed, mouse moved etc.) 
 		//    and call corresponding response functions
 		glfwPollEvents();
+		do_movement();
 
 		// Render
 		// Clear the colorbuffer
@@ -140,31 +169,23 @@ int main()
 		ourShader.Use();
 
 		/**************************************************************
-		********************[  ACTION TIME! ]*******************
+		********************[  ACTION TIME! ]**************************
 		***************************************************************/
-
 		// Camera/View transformation
 		glm::mat4 view;
-		GLfloat radius = 10.0f;
-		GLfloat camX = sin((GLfloat)glfwGetTime()) * radius;
-		GLfloat camZ = cos((GLfloat)glfwGetTime()) * radius;
-		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		glm::mat4 model;
-		glm::mat4 projection;
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
-		projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
-
-		// Get their uniform location
+		view = camera.GetViewMatrix();
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+		// Get the uniform locations
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
 		GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
 		GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
 
-		// Pass them to the shaders
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		// Pass the matrices to the shader
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		// Note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glm::mat4 model;
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 
 
 		/**************************************************************
@@ -215,6 +236,54 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			keys[key] = false;
+	}
+}
+
+void do_movement()
+{
+	// Camera controls
+	if (keys[GLFW_KEY_UP])
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (keys[GLFW_KEY_DOWN])
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (keys[GLFW_KEY_LEFT])
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (keys[GLFW_KEY_RIGHT])
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+bool firstMouse = true;
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos;  // Reversed since y-coordinates go from bottom to left
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(yoffset);
 }
 
 void populateWithNormal(GLfloat* arr, GLuint lineNo, GLuint noOfNormals) {

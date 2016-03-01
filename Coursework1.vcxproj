@@ -123,6 +123,7 @@
     <None Include="shader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="ConeB.h" />
     <ClInclude Include="Shader.h" />
