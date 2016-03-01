@@ -68,6 +68,13 @@ void printArr(GLfloat* arr, GLuint n) {
 	}
 }
 
+GLfloat indices[2 * nodes*nodes];
+GLuint i = 0;
+void setIndxA(GLuint value) {
+	indices[i] = value;
+	i++;
+}
+
 /**************************************************************
 ********************[  The Action Code!   ]********************
 ***************************************************************/
@@ -126,15 +133,28 @@ int main()
 
 	cone1.populateArrayWithCone(vertices, 4 * nodes*nodes, 0.5f, 1.5f);
 
+	for (GLuint row = 1; row < nodes; row++) {
+		for (GLuint column = 1; column < nodes; column++) {
+			GLuint xny = column * vertIndxs + row;
+			GLuint xn1 = 2 + 1;
 
-	GLuint VBO, VAO;
+
+		}
+	}
+
+
+	GLuint VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertIndxs * sizeof(GLfloat), (GLvoid*)0);
