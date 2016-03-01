@@ -36,7 +36,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 2*800, HEIGHT = 2*600;
 
 // Camera
 Camera  camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -68,11 +68,15 @@ void printArr(GLfloat* arr, GLuint n) {
 	}
 }
 
-GLfloat indices[2 * nodes*nodes];
-GLuint i = 0;
-void setIndxA(GLuint value) {
-	indices[i] = value;
-	i++;
+GLuint indices[6 * nodes*nodes];
+GLuint indicesIndex = 0;
+void addIndx(GLuint value) {
+	//std::cout << "Indices index:" << indicesIndex << std::endl;
+	//GLuint past = indicesIndex;
+	indices[indicesIndex] = value;
+	indicesIndex++;
+	//std::cout << "Past|Present: " << past<< "|" << indicesIndex << std::endl;
+
 }
 
 /**************************************************************
@@ -135,10 +139,18 @@ int main()
 
 	for (GLuint row = 1; row < nodes; row++) {
 		for (GLuint column = 1; column < nodes; column++) {
-			GLuint xny = column * vertIndxs + row;
-			GLuint xn1 = 2 + 1;
+			GLuint bot_left  = (column * nodes + row);
+			GLuint bot_right = (column * nodes + (row+1)%nodes);
+			GLuint top_left  = (bot_left + nodes) % (nodes*nodes);
+			GLuint top_right = (bot_right + nodes) % (nodes*nodes);
 
+			addIndx(bot_left);
+			addIndx(bot_right);
+			addIndx(top_right);
 
+			addIndx(bot_left);
+			addIndx(top_left);
+			addIndx(top_right);
 		}
 	}
 
@@ -229,26 +241,26 @@ int main()
 		/**************************************************************
 		********************[  Drawing Time! ]*******************
 		***************************************************************/
+
 		glBindVertexArray(VAO);
-
-		GLuint drawType = GL_LINE_LOOP;
-		if (gamemode == 'C')
-			drawType = GL_TRIANGLE_FAN;
-
-		if ('A' <= gamemode && gamemode <= 'C' )
+		if ('A' == gamemode || gamemode == 'B' )
 		{
 			// Draw DA COUNTOURS
-			for (GLuint line = 0; line < 2 * nodes; line++)
-			{
-				glDrawArrays(drawType, nodes*line, nodes);
+			for (GLuint line = 0; line < 2 * nodes; line++) {
+				glDrawArrays(GL_LINE_LOOP, nodes*line, nodes);
 			}
-			if (gamemode == 'B') {
-				//Draw the normals
+			//Draw the normals
+			if (gamemode == 'B') 
 				glDrawArrays(GL_LINES, nodes*nodes * 2, nodes*nodes * 2);
-			}
-
+			
 		}
-		if (gamemode == 'D') {
+		//Draw surfaces with lighting
+		else if (gamemode == 'C')
+		{
+			glDrawElements(GL_TRIANGLES, indicesIndex, GL_UNSIGNED_INT, 0);
+		}
+		else if (gamemode == 'D')
+		{
 			cone1.drawCone(nodes*nodes * 4);
 		}
 		glBindVertexArray(0);
