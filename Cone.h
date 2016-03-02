@@ -36,7 +36,7 @@ public:
 		drawSurface(arr, midOffset, radius, 0.0f, 0.0f, 0.0f);
 	}
 
-
+	GLuint j = 0;
 	GLuint drawSurface(GLfloat* arr, GLuint offset, GLfloat radius, 
 		GLfloat tx, GLfloat ty, GLfloat tz)
 	{
@@ -50,13 +50,16 @@ public:
 				oz = myz;
 
 		// The index in the data array
-		GLuint j = 0;
 		std::cout << "Start J is " << j << std::endl;
 
 		//circle node n_0
 		arr[offset + j*vertIndxs + 0] = ox;
 		arr[offset + j*vertIndxs + 1] = oy;
 		arr[offset + j*vertIndxs + 2] = oz;
+
+		arr[offset + j*vertIndxs + 3] = ox;
+		arr[offset + j*vertIndxs + 4] = oy;
+		arr[offset + j*vertIndxs + 5] = oz;
 		j++;
 		std::cout << "J is " << j << std::endl;
 
@@ -64,6 +67,10 @@ public:
 		arr[offset + j*vertIndxs + 0] = tx;
 		arr[offset + j*vertIndxs + 1] = ty;
 		arr[offset + j*vertIndxs + 2] = tz;
+		arr[offset + j*vertIndxs + 3] = tx;
+		arr[offset + j*vertIndxs + 4] = ty;
+		arr[offset + j*vertIndxs + 5] = tz;
+
 		j++;
 		std::cout << "J is " << j << std::endl;
 
@@ -75,12 +82,20 @@ public:
 			arr[offset+j*vertIndxs + 0] = myx;
 			arr[offset+j*vertIndxs + 1] = myy;
 			arr[offset+j*vertIndxs + 2] = myz;
+
+			arr[offset + j*vertIndxs + 3] = myx;
+			arr[offset + j*vertIndxs + 4] = myy;
+			arr[offset + j*vertIndxs + 5] = myz;
 			j++;
 
 			// circle node n_i for the  start of this triangle
 			arr[offset + j*vertIndxs + 0] = myx;
 			arr[offset + j*vertIndxs + 1] = myy;
 			arr[offset + j*vertIndxs + 2] = myz;
+
+			arr[offset + j*vertIndxs + 3] = myx;
+			arr[offset + j*vertIndxs + 4] = myy;
+			arr[offset + j*vertIndxs + 5] = myz;
 			j++;
 
 
@@ -88,6 +103,10 @@ public:
 			arr[offset+j*vertIndxs + 0] = tx;
 			arr[offset+j*vertIndxs + 1] = ty;
 			arr[offset+j*vertIndxs + 2] = tz;
+
+			arr[offset + j*vertIndxs + 3] = tx;
+			arr[offset + j*vertIndxs + 4] = ty;
+			arr[offset + j*vertIndxs + 5] = tz;
 			j++;
 		}
 		std::cout << "Very Last J is " << j << std::endl;
@@ -106,7 +125,7 @@ public:
 		//Draw surface one
 		GLuint count = 2 * 3 * nodesInDemiCircle;
 		glDrawArrays(GL_TRIANGLES, offset, count);
-		glDrawArrays(GL_TRIANGLES, midOffset, count); //There is a problem 
+		//glDrawArrays(GL_TRIANGLES, midOffset, count); //There is a problem 
 
 	}
 
@@ -122,7 +141,7 @@ private:
 		myx = radius*glm::cos(rad_inc*i);
 		myy = radius*glm::sin(rad_inc*i);
 		i++;
-		return i < 2 * nodesInDemiCircle;
+		return i < 2 * nodesInDemiCircle + 1;
 		//The other bits are not my concern atm
 	}
 };

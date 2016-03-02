@@ -198,7 +198,7 @@ int main()
 
 		// Render
 		// Clear the colorbuffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.2f, 0.4f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/**************************************************************
@@ -225,7 +225,7 @@ int main()
 		***************************************************************/
 		// Camera/View transformation
 		glm::mat4 view;
-		view = camera.GetViewMatrix();
+		view = glm::translate(camera.GetViewMatrix(), glm::vec3(0.0f, 0.0f, -3.0f));
 		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 		// Get the uniform locations
 		GLint modelLoc = glGetUniformLocation(fancyLightShader.Program, "model");
@@ -235,16 +235,38 @@ int main()
 		// Pass the matrices to the shader
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glm::mat4 model;
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
+		/**************************************************************
+		********************[  Section D models ]**************************
+		***************************************************************/
+		glm::vec3 spheres[2] = {
+			glm::vec3(3.5f, 1.5f, -3.0f),
+			glm::vec3(-1.5f, -1.1f, -3.0f)
+		};
+
+		glm::vec3 cones[2] = {
+			glm::vec3(-3.5f, -1.5f, 0.0f),
+			glm::vec3(1.5f, 1.1f, 0.0f)
+		};
+
+		glm::vec3 colours[4] = {
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f),
+			glm::vec3(0.0f, 0.5f, 0.5f)
+		};
 		/**************************************************************
 		********************[  Drawing Time! ]*******************
 		***************************************************************/
-
 		glBindVertexArray(VAO);
+
+
 		if ('A' == gamemode || gamemode == 'B' )
 		{
+			glm::mat4 model;
+			model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 			// Draw DA COUNTOURS
 			for (GLuint line = 0; line < 2 * nodes; line++) {
 				glDrawArrays(GL_LINE_LOOP, nodes*line, nodes);
@@ -252,16 +274,47 @@ int main()
 			//Draw the normals
 			if (gamemode == 'B') 
 				glDrawArrays(GL_LINES, nodes*nodes * 2, nodes*nodes * 2);
-			
 		}
 		//Draw surfaces with lighting
 		else if (gamemode == 'C')
 		{
+			glm::mat4 model;
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 			glDrawElements(GL_TRIANGLES, indicesIndex, GL_UNSIGNED_INT, 0);
 		}
 		else if (gamemode == 'D')
 		{
-			cone1.drawCone(nodes*nodes * 4);
+
+			for (GLuint modelNo = 0; modelNo < 2; modelNo++) {
+				glm::vec3 col = colours[modelNo];
+				glUniform3f(objectColorLoc, col.x, col.y, col.z);
+
+				glm::mat4 model;
+
+				glm::vec3 pos = spheres[modelNo];
+				pos.x *= 2 * glm::cos(glfwGetTime());
+				pos.y *= 1.75 * glm::sin(glfwGetTime());
+				model = glm::translate(model, pos);
+				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				glDrawElements(GL_TRIANGLES, indicesIndex, GL_UNSIGNED_INT, 0);
+			}
+
+			for (GLuint modelNo = 0; modelNo < 2; modelNo++) {
+				glm::vec3 col = colours[modelNo+2];
+				glUniform3f(objectColorLoc, col.x, col.y, col.z);
+
+				glm::mat4 model;
+				glm::vec3 pos = cones[modelNo];
+				pos.x *= (modelNo + 1.0f) * glm::sin(glfwGetTime());
+				pos.y *= (modelNo + 1.0f)*(modelNo + 1.0f)* glm::cos(glfwGetTime());
+				model = glm::translate(model, pos);
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				cone1.drawCone(nodes*nodes * 4);
+			}
 		}
 		glBindVertexArray(0);
 
@@ -272,11 +325,11 @@ int main()
 	// Properly de-allocate all resources once they've outlived their purpose
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-
+	glDeleteBuffers(1, &EBO);
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
-}
+};
 
 //Called whenever the keyboard is used! Will controll our scenes (A-E).
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
