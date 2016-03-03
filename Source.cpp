@@ -120,6 +120,7 @@ int main()
 
 	// Build and compile our shader program
 	Shader fancyLightShader("shader.vs", "lightShader.frag");
+	Shader textureShader("textureShader.vs", "textureShader.frag");
 
 	Sphere genericSphere(nodes);
 	Cone cone1(nodes);
@@ -182,6 +183,30 @@ int main()
 
 	glBindVertexArray(0); // Unbind VAO
 	/**************************************************************
+	********************[  Texturing ]*****************************
+	***************************************************************/	
+	GLuint texture1;
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1); // All upcoming GL_TEXTURE_2D operations now have effect on our texture object
+
+	// Set our texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// Set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Load, create texture and generate mipmaps
+	int width, height;
+	unsigned char* image = SOIL_load_image("wafer.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+
+	
+	/**************************************************************
 	********************[  GAME LOOP ]*******************
 	***************************************************************/	
 	while (!glfwWindowShouldClose(window))
@@ -210,7 +235,7 @@ int main()
 		GLint lightColorLoc = glGetUniformLocation(fancyLightShader.Program, "lightColor");
 		GLint lightPosLoc = glGetUniformLocation(fancyLightShader.Program, "lightPos");
 		GLint viewPosLoc = glGetUniformLocation(fancyLightShader.Program, "viewPos");
-		if ('A' <= gamemode && gamemode <= 'B') {
+		if ('A' == gamemode || gamemode == 'B' || gamemode == 'E') {
 			glUniform3f(objectColorLoc, 0.0f, 0.0f, 0.0f);
 		}
 		else {
@@ -235,6 +260,16 @@ int main()
 		// Pass the matrices to the shader
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		// Get the uniform locations
+		GLint texModelLoc = glGetUniformLocation(textureShader.Program, "model");
+		viewLoc = glGetUniformLocation(textureShader.Program, "view");
+		projLoc = glGetUniformLocation(textureShader.Program, "projection");
+
+		// Pass the matrices to the shader
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 
 		/**************************************************************
 		********************[  Section D models ]**************************
@@ -315,6 +350,18 @@ int main()
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 				cone1.drawCone(nodes*nodes * 4);
 			}
+		}
+		else if (gamemode == 'E')
+		{
+			textureShader.Use();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture1);
+			glUniform1i(glGetUniformLocation(textureShader.Program, "ourTexture"), 0);
+
+			glm::mat4 model;
+			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(texModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			cone1.drawCone(nodes*nodes * 4);
 		}
 		glBindVertexArray(0);
 

@@ -26,6 +26,12 @@
     <None Include="shader.vs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="textureShader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="textureShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

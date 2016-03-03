@@ -40,7 +40,7 @@ public:
 	GLuint drawSurface(GLfloat* arr, GLuint offset, GLfloat radius, 
 		GLfloat tx, GLfloat ty, GLfloat tz)
 	{
-		std::cout << "----[ Draw Surface ]-------------"<< std::endl;
+		// The index in the data array
 		i = 0;
 
 		//Save the first circle point (origin point)
@@ -48,9 +48,6 @@ public:
 		GLfloat ox = myx,
 				oy = myy,
 				oz = myz;
-
-		// The index in the data array
-		std::cout << "Start J is " << j << std::endl;
 
 		//circle node n_0
 		arr[offset + j*vertIndxs + 0] = ox;
@@ -60,23 +57,28 @@ public:
 		arr[offset + j*vertIndxs + 3] = ox;
 		arr[offset + j*vertIndxs + 4] = oy;
 		arr[offset + j*vertIndxs + 5] = oz;
+
+		arr[offset + j*vertIndxs + 6] = 0.0f;
+		arr[offset + j*vertIndxs + 7] = 0.0f;
 		j++;
-		std::cout << "J is " << j << std::endl;
 
 		//cone top node
 		arr[offset + j*vertIndxs + 0] = tx;
 		arr[offset + j*vertIndxs + 1] = ty;
 		arr[offset + j*vertIndxs + 2] = tz;
+
 		arr[offset + j*vertIndxs + 3] = tx;
 		arr[offset + j*vertIndxs + 4] = ty;
 		arr[offset + j*vertIndxs + 5] = tz;
 
+		arr[offset + j*vertIndxs + 6] = 0.5f;
+		arr[offset + j*vertIndxs + 7] = 1.0f;
 		j++;
-		std::cout << "J is " << j << std::endl;
 
 
 		//Create all intermediary triangles
 		while (generatingNextCirclePoint(radius)) {
+			GLfloat percentThroughXaxis = i / (2 * nodesInDemiCircle + 1);
 
 			//circle node n_i for the end of  the previous triangle
 			arr[offset+j*vertIndxs + 0] = myx;
@@ -86,6 +88,9 @@ public:
 			arr[offset + j*vertIndxs + 3] = myx;
 			arr[offset + j*vertIndxs + 4] = myy;
 			arr[offset + j*vertIndxs + 5] = myz;
+
+			arr[offset + j*vertIndxs + 6] = percentThroughXaxis;
+			arr[offset + j*vertIndxs + 7] = 0.0f;
 			j++;
 
 			// circle node n_i for the  start of this triangle
@@ -96,6 +101,9 @@ public:
 			arr[offset + j*vertIndxs + 3] = myx;
 			arr[offset + j*vertIndxs + 4] = myy;
 			arr[offset + j*vertIndxs + 5] = myz;
+
+			arr[offset + j*vertIndxs + 6] = percentThroughXaxis;
+			arr[offset + j*vertIndxs + 7] = 0.0f;
 			j++;
 
 
@@ -107,15 +115,23 @@ public:
 			arr[offset + j*vertIndxs + 3] = tx;
 			arr[offset + j*vertIndxs + 4] = ty;
 			arr[offset + j*vertIndxs + 5] = tz;
+
+			arr[offset + j*vertIndxs + 6] = 0.5f;
+			arr[offset + j*vertIndxs + 7] = 1.0f;
 			j++;
 		}
-		std::cout << "Very Last J is " << j << std::endl;
 
 		//Finishing of the very last triangle with the circle origin node
 		arr[offset + j*vertIndxs + 0] = ox;
 		arr[offset + j*vertIndxs + 1] = oy;
 		arr[offset + j*vertIndxs + 2] = oz;
-		std::cout << "Last Index = " << offset + j*vertIndxs + 2 << std::endl;
+
+		arr[offset + j*vertIndxs + 3] = ox;
+		arr[offset + j*vertIndxs + 4] = oy;
+		arr[offset + j*vertIndxs + 5] = oz;
+
+		arr[offset + j*vertIndxs + 6] = 1.0f;
+		arr[offset + j*vertIndxs + 7] = 0.0f;
 		j++;
 		return offset + j*vertIndxs ;
 	}
@@ -125,8 +141,6 @@ public:
 		//Draw surface one
 		GLuint count = 2 * 3 * nodesInDemiCircle;
 		glDrawArrays(GL_TRIANGLES, offset, count);
-		//glDrawArrays(GL_TRIANGLES, midOffset, count); //There is a problem 
-
 	}
 
 private:

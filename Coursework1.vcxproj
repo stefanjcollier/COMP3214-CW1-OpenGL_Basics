@@ -121,6 +121,8 @@
   <ItemGroup>
     <None Include="lightShader.frag" />
     <None Include="shader.vs" />
+    <None Include="textureShader.frag" />
+    <None Include="textureShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
